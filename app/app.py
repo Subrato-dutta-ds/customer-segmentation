@@ -21,15 +21,6 @@ st.set_page_config(
 st.markdown("""
 <style>
     .main > div { padding-top: 0rem; padding-bottom: 0rem; }
-    .glass-card {
-        background: rgba(26, 26, 46, 0.8);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
-        padding: 1.5rem;
-        border: 1px solid rgba(108, 99, 255, 0.3);
-        box-shadow: 0 8px 32px rgba(108, 99, 255, 0.15);
-        margin-bottom: 1rem;
-    }
     .badge {
         display: inline-block;
         padding: 4px 16px;
@@ -86,33 +77,44 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- HOME PAGE CONTENT (FIXED: Inline styles instead of CSS classes) ---
-st.markdown("""
-<div class="glass-card">
-    <h3 style="margin-top: 0;">🎯 Welcome to the Segmentation Engine</h3>
-    <p style="color: #BBBBBB;">This application segments customers into <b style="color: #6C63FF;">5 distinct personas</b> using 
-    <b style="color: #00D4FF;">K-Means Clustering</b> based on Income, Spending Score, and Age.</p>
-    
-    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
-        <div style="background: rgba(26, 26, 46, 0.9); border: 2px solid #6C63FF; border-radius: 12px; padding: 20px 30px; text-align: center; flex: 1; min-width: 120px;">
-            <span style="font-size: 2.4rem; font-weight: 700; color: #6C63FF; display: block;">0.53</span>
-            <span style="font-size: 0.85rem; color: #AAAAAA;">📊 Silhouette Score</span>
-        </div>
-        <div style="background: rgba(26, 26, 46, 0.9); border: 2px solid #FF6584; border-radius: 12px; padding: 20px 30px; text-align: center; flex: 1; min-width: 120px;">
-            <span style="font-size: 2.4rem; font-weight: 700; color: #FF6584; display: block;">5</span>
-            <span style="font-size: 0.85rem; color: #AAAAAA;">📌 Clusters</span>
-        </div>
-        <div style="background: rgba(26, 26, 46, 0.9); border: 2px solid #00D4FF; border-radius: 12px; padding: 20px 30px; text-align: center; flex: 1; min-width: 120px;">
-            <span style="font-size: 2.4rem; font-weight: 700; color: #00D4FF; display: block;">3</span>
-            <span style="font-size: 0.85rem; color: #AAAAAA;">📈 Features</span>
-        </div>
-        <div style="background: rgba(26, 26, 46, 0.9); border: 2px solid #00E676; border-radius: 12px; padding: 20px 30px; text-align: center; flex: 1; min-width: 120px;">
-            <span style="font-size: 2.4rem; font-weight: 700; color: #00E676; display: block;">⚡</span>
-            <span style="font-size: 0.85rem; color: #AAAAAA;">Live Streaming</span>
-        </div>
+# --- WELCOME SECTION (Using Streamlit Columns) ---
+st.markdown("### 🎯 Welcome to the Segmentation Engine")
+st.markdown("This application segments customers into **5 distinct personas** using **K-Means Clustering** based on Income, Spending Score, and Age.")
+
+# --- Feature Cards using Streamlit Columns ---
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.markdown("""
+    <div style="background: rgba(26, 26, 46, 0.9); border: 2px solid #6C63FF; border-radius: 12px; padding: 20px; text-align: center;">
+        <div style="font-size: 2.4rem; font-weight: 700; color: #6C63FF;">0.53</div>
+        <div style="color: #AAAAAA; font-size: 0.9rem;">📊 Silhouette Score</div>
     </div>
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown("""
+    <div style="background: rgba(26, 26, 46, 0.9); border: 2px solid #FF6584; border-radius: 12px; padding: 20px; text-align: center;">
+        <div style="font-size: 2.4rem; font-weight: 700; color: #FF6584;">5</div>
+        <div style="color: #AAAAAA; font-size: 0.9rem;">📌 Clusters</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col3:
+    st.markdown("""
+    <div style="background: rgba(26, 26, 46, 0.9); border: 2px solid #00D4FF; border-radius: 12px; padding: 20px; text-align: center;">
+        <div style="font-size: 2.4rem; font-weight: 700; color: #00D4FF;">3</div>
+        <div style="color: #AAAAAA; font-size: 0.9rem;">📈 Features</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col4:
+    st.markdown("""
+    <div style="background: rgba(26, 26, 46, 0.9); border: 2px solid #00E676; border-radius: 12px; padding: 20px; text-align: center;">
+        <div style="font-size: 2.4rem; font-weight: 700; color: #00E676;">⚡</div>
+        <div style="color: #AAAAAA; font-size: 0.9rem;">Live Streaming</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # --- Model Status ---
 if os.path.exists('models/kmeans_model.pkl'):
