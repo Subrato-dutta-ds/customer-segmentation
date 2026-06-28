@@ -15,9 +15,9 @@ venv.bak/
 .streamlit/uploads/
 
 # Models (large files)
-models/*.pkl
-models/*.joblib
-models/*.png
+#models/*.pkl
+#models/*.joblib
+#models/*.png
 
 # Data
 data/raw/*.csv
