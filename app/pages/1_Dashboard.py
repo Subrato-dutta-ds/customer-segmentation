@@ -5,11 +5,12 @@ import joblib
 import sys
 import os
 
+# Add current directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # Auto-train if model missing
 from utils import ensure_model_exists
 ensure_model_exists()
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 st.set_page_config(page_title="Dashboard", layout="wide")
 st.title("📊 Dashboard Overview")
@@ -70,7 +71,7 @@ with col1:
         labels={'Annual_Income_k': 'Annual Income (₹k)', 'Spending_Score': 'Spending Score (1-100)'}
     )
     fig.update_layout(height=450, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 with col2:
     st.subheader("📊 Segment Sizes")
@@ -87,7 +88,7 @@ with col2:
     )
     fig2.update_traces(textposition='outside')
     fig2.update_layout(height=450, showlegend=False)
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width='stretch')
 
 st.markdown("---")
 
@@ -107,7 +108,7 @@ display_df['Spending_Score'] = display_df['Spending_Score'].map('{:.1f}'.format)
 display_df['Age'] = display_df['Age'].map('{:.1f} yrs'.format)
 display_df['Size'] = display_df['Size'].map('{:.0f}'.format)
 
-st.dataframe(display_df, use_container_width=True, hide_index=True)
+st.dataframe(display_df, width='stretch', hide_index=True)
 
 st.markdown("---")
 
@@ -115,7 +116,7 @@ st.markdown("---")
 st.subheader("🖼️ Cluster Visualization")
 
 if os.path.exists('models/cluster_visualization.png'):
-    st.image('models/cluster_visualization.png', caption='Customer Segments Visualization', use_container_width=True)
+    st.image('models/cluster_visualization.png', caption='Customer Segments Visualization', width='stretch')
 else:
     st.info("ℹ️ Visualization not available. Please run `python src/train.py` first.")
 
