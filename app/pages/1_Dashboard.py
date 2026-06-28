@@ -5,6 +5,10 @@ import joblib
 import sys
 import os
 
+# Auto-train if model missing
+from app.utils import ensure_model_exists
+ensure_model_exists()
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 st.set_page_config(page_title="Dashboard", layout="wide")
@@ -40,12 +44,12 @@ df = get_data()
 # --- Gradient Color Palette for Segments ---
 segment_colors = ['#6C63FF', '#FF6584', '#00D4FF', '#00E676', '#FFB74D']
 
-# --- METRIC ROW ---
+# --- METRIC ROW (INR Currency) ---
 col1, col2, col3, col4, col5 = st.columns(5)
 col1.metric("👥 Total Customers", len(df), delta="300")
 col2.metric("📌 Clusters", 5, delta="K-Means")
 col3.metric("📈 Silhouette", "0.53", delta="Good")
-col4.metric("💰 Avg Income", f"${df['Annual_Income_k'].mean():.1f}k")
+col4.metric("💰 Avg Income", f"₹{df['Annual_Income_k'].mean():.1f}k")
 col5.metric("⭐ Avg Spending", f"{df['Spending_Score'].mean():.1f}")
 
 st.markdown("---")
@@ -63,7 +67,7 @@ with col1:
         color_discrete_sequence=segment_colors,
         hover_data=['Age'],
         title='Income vs Spending (Colored by Cluster)',
-        labels={'Annual_Income_k': 'Annual Income (k$)', 'Spending_Score': 'Spending Score (1-100)'}
+        labels={'Annual_Income_k': 'Annual Income (₹k)', 'Spending_Score': 'Spending Score (1-100)'}
     )
     fig.update_layout(height=450, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
     st.plotly_chart(fig, use_container_width=True)
@@ -87,7 +91,7 @@ with col2:
 
 st.markdown("---")
 
-# --- ROW 2: Cluster Profiles ---
+# --- ROW 2: Cluster Profiles (INR Currency) ---
 st.subheader("📋 Segment Profiles")
 
 profile_df = df.groupby('Cluster').agg({
@@ -97,9 +101,8 @@ profile_df = df.groupby('Cluster').agg({
     'CustomerID': 'count'
 }).rename(columns={'CustomerID': 'Size'}).reset_index()
 
-# Format profile for display
 display_df = profile_df.copy()
-display_df['Annual_Income_k'] = display_df['Annual_Income_k'].map('${:.1f}k'.format)
+display_df['Annual_Income_k'] = display_df['Annual_Income_k'].map('₹{:.1f}k'.format)
 display_df['Spending_Score'] = display_df['Spending_Score'].map('{:.1f}'.format)
 display_df['Age'] = display_df['Age'].map('{:.1f} yrs'.format)
 display_df['Size'] = display_df['Size'].map('{:.0f}'.format)
@@ -112,7 +115,7 @@ st.markdown("---")
 st.subheader("🖼️ Cluster Visualization")
 
 if os.path.exists('models/cluster_visualization.png'):
-    st.image('models/cluster_visualization.png', caption='Customer Segments Visualization (Matplotlib)', use_container_width=True)
+    st.image('models/cluster_visualization.png', caption='Customer Segments Visualization', use_container_width=True)
 else:
     st.info("ℹ️ Visualization not available. Please run `python src/train.py` first.")
 

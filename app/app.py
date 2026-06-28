@@ -1,6 +1,11 @@
 import streamlit as st
 import os
 
+# --- IMPORT AUTO-TRAIN ---
+from app.utils import ensure_model_exists
+ensure_model_exists()
+# -----------------------
+
 st.set_page_config(
     page_title="Segmentation Suite",
     page_icon="📊",
@@ -8,22 +13,56 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- Custom CSS for minor tweaks only ---
+# --- CUSTOM CSS ---
 st.markdown("""
 <style>
-    /* Only minimal styling */
     .main > div { padding-top: 0rem; padding-bottom: 0rem; }
-    [data-testid="stSidebar"] { background: #0F0F1A; }
-    
-    /* Gradient text for headers */
-    .gradient-text {
-        background: linear-gradient(135deg, #6C63FF, #FF6584, #00D4FF);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 700;
+    .glass-card {
+        background: rgba(26, 26, 46, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid rgba(108, 99, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(108, 99, 255, 0.15);
+        margin-bottom: 1rem;
     }
-    
-    /* Badge style */
+    .feature-grid {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    .feature-card {
+        background: rgba(26, 26, 46, 0.9);
+        border-radius: 12px;
+        padding: 20px 30px;
+        border: 2px solid #2D323B;
+        text-align: center;
+        flex: 1;
+        min-width: 120px;
+        transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .feature-card .number {
+        font-size: 2.4rem;
+        font-weight: 700;
+        display: block;
+    }
+    .feature-card .label {
+        font-size: 0.85rem;
+        color: #AAAAAA;
+    }
+    .feature-card.purple { border-color: #6C63FF; }
+    .feature-card.purple .number { color: #6C63FF; }
+    .feature-card.pink { border-color: #FF6584; }
+    .feature-card.pink .number { color: #FF6584; }
+    .feature-card.cyan { border-color: #00D4FF; }
+    .feature-card.cyan .number { color: #00D4FF; }
+    .feature-card.green { border-color: #00E676; }
+    .feature-card.green .number { color: #00E676; }
     .badge {
         display: inline-block;
         padding: 4px 16px;
@@ -36,20 +75,30 @@ st.markdown("""
     .badge-pink { background: #FF6584; color: white; }
     .badge-cyan { background: #00D4FF; color: #0F0F1A; }
     .badge-green { background: #00E676; color: #0F0F1A; }
+    .divider {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, #6C63FF, #FF6584, #00D4FF);
+        margin: 1.5rem 0;
+    }
+    [data-testid="stSidebar"] {
+        background: #0F0F1A;
+        border-right: 1px solid rgba(108, 99, 255, 0.2);
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # --- HEADER ---
 st.markdown("""
-<div style="text-align: center; padding: 0.5rem 0 1rem 0;">
-    <h1 style="font-size: 3rem; margin-bottom: 0; background: linear-gradient(135deg, #6C63FF, #FF6584, #00D4FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+<div style="text-align: center; padding: 0.5rem 0;">
+    <h1 style="font-size: 3.2rem; margin-bottom: 0; background: linear-gradient(135deg, #6C63FF, #FF6584, #00D4FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
         🛍️ Customer Segmentation Suite
     </h1>
-    <p style="color: #AAAAAA; font-size: 1.1rem; margin-top: 0;">
+    <p style="color: #AAAAAA; font-size: 1.2rem; margin-top: 0;">
         Real-time K-Means Clustering Engine
     </p>
-    <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 5px;">
-        <span class="badge badge-purple">✅ Score: 0.53</span>
+    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+        <span class="badge badge-purple">✅ Silhouette Score: 0.53</span>
         <span class="badge badge-pink">🔥 5 Segments</span>
         <span class="badge badge-cyan">📊 3 Features</span>
         <span class="badge badge-green">⚡ Real-time</span>
@@ -57,9 +106,9 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
-# --- SIDEBAR FOOTER ---
+# --- SIDEBAR ---
 st.sidebar.markdown("---")
 st.sidebar.markdown("""
 <div style="background: rgba(26, 26, 46, 0.8); padding: 15px; border-radius: 12px; border: 1px solid rgba(108, 99, 255, 0.2); text-align: center;">
@@ -70,57 +119,36 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- MAIN CONTENT: Using Streamlit Native Components ---
-
-# Welcome Section
+# --- HOME PAGE CONTENT ---
 st.markdown("""
-### 🎯 Welcome to the Segmentation Engine
-
-This application segments customers into **5 distinct personas** using 
-**K-Means Clustering** based on Income, Spending Score, and Age.
-""")
-
-st.markdown("---")
-
-# --- FEATURE CARDS USING STREAMLIT COLUMNS (Guaranteed to work!) ---
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.markdown("""
-    <div style="background: rgba(108, 99, 255, 0.15); border: 2px solid #6C63FF; border-radius: 12px; padding: 20px; text-align: center;">
-        <div style="font-size: 2.5rem; font-weight: 700; color: #6C63FF;">0.53</div>
-        <div style="color: #AAAAAA; font-size: 0.9rem;">📊 Silhouette Score</div>
+<div class="glass-card">
+    <h3 style="margin-top: 0;">🎯 Welcome to the Segmentation Engine</h3>
+    <p style="color: #BBBBBB;">This application segments customers into <b style="color: #6C63FF;">5 distinct personas</b> using 
+    <b style="color: #00D4FF;">K-Means Clustering</b> based on Income, Spending Score, and Age.</p>
+    
+    <div class="feature-grid">
+        <div class="feature-card purple">
+            <span class="number">0.53</span>
+            <span class="label">📊 Silhouette Score</span>
+        </div>
+        <div class="feature-card pink">
+            <span class="number">5</span>
+            <span class="label">📌 Clusters</span>
+        </div>
+        <div class="feature-card cyan">
+            <span class="number">3</span>
+            <span class="label">📈 Features</span>
+        </div>
+        <div class="feature-card green">
+            <span class="number">⚡</span>
+            <span class="label">Live Streaming</span>
+        </div>
     </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    st.markdown("""
-    <div style="background: rgba(255, 101, 132, 0.15); border: 2px solid #FF6584; border-radius: 12px; padding: 20px; text-align: center;">
-        <div style="font-size: 2.5rem; font-weight: 700; color: #FF6584;">5</div>
-        <div style="color: #AAAAAA; font-size: 0.9rem;">📌 Clusters</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col3:
-    st.markdown("""
-    <div style="background: rgba(0, 212, 255, 0.15); border: 2px solid #00D4FF; border-radius: 12px; padding: 20px; text-align: center;">
-        <div style="font-size: 2.5rem; font-weight: 700; color: #00D4FF;">3</div>
-        <div style="color: #AAAAAA; font-size: 0.9rem;">📈 Features</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col4:
-    st.markdown("""
-    <div style="background: rgba(0, 230, 118, 0.15); border: 2px solid #00E676; border-radius: 12px; padding: 20px; text-align: center;">
-        <div style="font-size: 2.5rem; font-weight: 700; color: #00E676;">⚡</div>
-        <div style="color: #AAAAAA; font-size: 0.9rem;">Live Streaming</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.markdown("---")
+</div>
+""", unsafe_allow_html=True)
 
 # --- Model Status ---
 if os.path.exists('models/kmeans_model.pkl'):
     st.success("✅ **Model Loaded** | Ready for predictions!")
 else:
-    st.error("❌ **Model Missing** | Please run `python src/train.py` first.")
+    st.info("⏳ **Model Training** | First load may take a few seconds...")
