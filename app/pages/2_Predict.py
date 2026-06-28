@@ -5,6 +5,9 @@ import sys
 import os
 import numpy as np
 
+from utils import ensure_model_exists
+ensure_model_exists()
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 st.set_page_config(page_title="Predict Segment", layout="wide")

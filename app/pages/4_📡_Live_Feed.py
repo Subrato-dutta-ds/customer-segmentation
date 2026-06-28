@@ -5,6 +5,8 @@ import plotly.express as px
 import sys
 import os
 
+from utils import ensure_model_exists
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.simulator import CustomerSimulator

@@ -6,7 +6,7 @@ import sys
 import os
 
 # Auto-train if model missing
-from app.utils import ensure_model_exists
+from utils import ensure_model_exists
 ensure_model_exists()
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))

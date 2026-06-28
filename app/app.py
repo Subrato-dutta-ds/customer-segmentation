@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 # --- IMPORT AUTO-TRAIN ---
-from app.utils import ensure_model_exists
+from utils import ensure_model_exists
 ensure_model_exists()
 # -----------------------
 
