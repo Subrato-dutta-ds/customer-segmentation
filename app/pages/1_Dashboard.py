@@ -42,7 +42,6 @@ segment_colors = ['#6C63FF', '#FF6584', '#00D4FF', '#00E676', '#FFB74D']
 
 # --- METRIC ROW ---
 col1, col2, col3, col4, col5 = st.columns(5)
-
 col1.metric("👥 Total Customers", len(df), delta="300")
 col2.metric("📌 Clusters", 5, delta="K-Means")
 col3.metric("📈 Silhouette", "0.53", delta="Good")
@@ -86,10 +85,11 @@ with col2:
     fig2.update_layout(height=450, showlegend=False)
     st.plotly_chart(fig2, use_container_width=True)
 
-# --- ROW 2: Cluster Profiles (FIXED) ---
-st.subheader("📋 Segment Profiles (Average Characteristics)")
+st.markdown("---")
 
-# Create the profile DataFrame
+# --- ROW 2: Cluster Profiles ---
+st.subheader("📋 Segment Profiles")
+
 profile_df = df.groupby('Cluster').agg({
     'Annual_Income_k': 'mean',
     'Spending_Score': 'mean',
@@ -97,25 +97,24 @@ profile_df = df.groupby('Cluster').agg({
     'CustomerID': 'count'
 }).rename(columns={'CustomerID': 'Size'}).reset_index()
 
-# --- FIX: Use .map() instead of .applymap() (Pandas 2.1+) ---
-def color_cluster(val):
-    """Return CSS style for cluster column"""
-    colors = {0: '#6C63FF', 1: '#FF6584', 2: '#00D4FF', 3: '#00E676', 4: '#FFB74D'}
-    bg_color = colors.get(val, '#1A1A2E')
-    return f'background-color: {bg_color}; color: white; font-weight: bold;'
+# Format profile for display
+display_df = profile_df.copy()
+display_df['Annual_Income_k'] = display_df['Annual_Income_k'].map('${:.1f}k'.format)
+display_df['Spending_Score'] = display_df['Spending_Score'].map('{:.1f}'.format)
+display_df['Age'] = display_df['Age'].map('{:.1f} yrs'.format)
+display_df['Size'] = display_df['Size'].map('{:.0f}'.format)
 
-# Apply styling using .map() and format numbers
-styled_df = profile_df.style.map(
-    color_cluster, subset=['Cluster']
-).format({
-    'Annual_Income_k': '${:.1f}k',
-    'Spending_Score': '{:.1f}',
-    'Age': '{:.1f} yrs',
-    'Size': '{:.0f}'
-})
+st.dataframe(display_df, use_container_width=True, hide_index=True)
 
-# Display the styled dataframe
-st.dataframe(styled_df, use_container_width=True)
+st.markdown("---")
+
+# --- ROW 3: CLUSTER VISUALIZATION PNG ---
+st.subheader("🖼️ Cluster Visualization")
+
+if os.path.exists('models/cluster_visualization.png'):
+    st.image('models/cluster_visualization.png', caption='Customer Segments Visualization (Matplotlib)', use_container_width=True)
+else:
+    st.info("ℹ️ Visualization not available. Please run `python src/train.py` first.")
 
 # --- INSIGHTS ---
 with st.expander("💡 Business Insights (Click to expand)"):
